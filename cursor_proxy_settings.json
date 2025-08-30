@@ -1,0 +1,8 @@
+{
+    "http.proxy": "http://your-proxy-server:port",
+    "http.proxyAuthorization": "Basic base64(username:password)",
+    "http.proxyNoProxy": "localhost,127.0.0.1,::1",
+    "http.proxyKerberosServicePrincipal": "",
+    "http.proxyStrictSSL": false,
+    "http.proxySupport": "on"
+}
