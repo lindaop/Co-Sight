@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>协作拼图进度条 - 演示</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>协作拼图进度条（Demo）</h1>
+        <p class="sub">点赞/评论累计解锁拼图块，完成后触发庆祝动画</p>
+      </header>
+
+      <main class="main">
+        <section class="card" id="puzzle-card">
+          <div class="card-header">
+            <div class="title">今日拼图</div>
+            <div class="reward" id="rewardText">完成解锁：加演一首</div>
+          </div>
+
+          <div class="progress">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-text" id="progressText">0%</div>
+            <div class="hint" id="hintText"></div>
+          </div>
+
+          <div class="grid" id="puzzleGrid"></div>
+
+          <div class="celebration hidden" id="celebration">
+            <div class="confetti">🎉</div>
+            <div class="done-text">拼图完成！加演开始～</div>
+          </div>
+        </section>
+
+        <aside class="controls">
+          <h2>演示控制台</h2>
+          <div class="row">
+            <label>网格：</label>
+            <select id="gridSize">
+              <option value="3">3 x 3</option>
+              <option value="4">4 x 4</option>
+            </select>
+          </div>
+          <div class="row">
+            <label>每块阈值：</label>
+            <input id="thresholdPerTile" type="number" value="50" min="1" step="10"/>
+          </div>
+          <div class="row">
+            <label>评论权重：</label>
+            <input id="commentWeight" type="number" value="1.5" min="0" step="0.1"/>
+          </div>
+          <div class="row">
+            <label>主题皮肤：</label>
+            <select id="theme">
+              <option value="classic">经典</option>
+              <option value="neon">霓虹</option>
+              <option value="sunset">日落</option>
+            </select>
+          </div>
+          <div class="row">
+            <label>奖励文案：</label>
+            <input id="rewardInput" type="text" value="完成解锁：加演一首" />
+          </div>
+          <div class="row buttons">
+            <button id="btnReset">应用配置并重置</button>
+            <button id="btnLike">+10 点赞</button>
+            <button id="btnComment">+5 评论</button>
+            <button id="btnAuto">自动刷赞（切换）</button>
+          </div>
+          <div class="row small">提示：自动刷赞将每 300ms 增加 5 点赞。</div>
+        </aside>
+      </main>
+
+      <footer class="footer">
+        <span>本演示含 `tt` API 模拟。上线请替换为真实 `tt` 能力。</span>
+      </footer>
+    </div>
+
+    <script src="tt-mock.js"></script>
+    <script src="app.js" type="module"></script>
+  </body>
+</html>
