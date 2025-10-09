@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>促销冲刺倒计时套件 - Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>促销冲刺倒计时套件（Demo）</h1>
+        <p class="sub">90/60/30/10秒分段动效，点赞/评论驱动进度，S10“上车”加速，达标即展示优惠码/链接</p>
+      </header>
+
+      <main class="main">
+        <section class="card theme-classic" id="sprint-card">
+          <div class="card-header">
+            <div>
+              <div class="title">冲刺进行中</div>
+              <div class="meta"><span id="metaGoal">目标：300分</span> · <span id="metaKeyword">关键词：上车</span></div>
+            </div>
+            <div class="time" id="timeLeft">90s</div>
+          </div>
+
+          <div class="segments">
+            <div class="seg" id="seg90">90s</div>
+            <div class="seg" id="seg60">60s</div>
+            <div class="seg" id="seg30">30s</div>
+            <div class="seg hot" id="seg10">10s</div>
+          </div>
+
+          <div class="progress">
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-text">
+              <span id="progressPct">0%</span>
+              <span class="hint" id="progressHint"></span>
+            </div>
+          </div>
+
+          <div class="last10" id="last10">
+            <div>最后10秒“<b id="kw">上车</b>”计分通道已启用</div>
+            <div class="kwcount">上车计数：<span id="kwCount">0</span></div>
+          </div>
+
+          <div class="reveal hidden" id="reveal">
+            <div class="reveal-title">优惠已解锁</div>
+            <div class="reveal-content">
+              <div class="code" id="revealCode">DEAL-2025</div>
+              <button id="btnCopy">复制</button>
+              <a id="btnLink" class="hidden" target="_blank" rel="noopener">打开链接</a>
+            </div>
+          </div>
+
+          <div class="fallback hidden" id="fallback">
+            <div class="fallback-title">本轮未达成</div>
+            <div class="fallback-text" id="fallbackText">领取基础券 CMB-BASE，或关注下轮冲刺</div>
+          </div>
+        </section>
+
+        <aside class="controls">
+          <h2>演示控制台</h2>
+          <div class="row"><label>时长（秒）</label><input id="duration" type="number" min="10" value="90"/></div>
+          <div class="row"><label>目标分</label><input id="goal" type="number" min="10" step="10" value="300"/></div>
+          <div class="row"><label>权重·点赞</label><input id="wLike" type="number" min="0" step="0.5" value="1"/></div>
+          <div class="row"><label>权重·评论</label><input id="wComment" type="number" min="0" step="0.5" value="1.5"/></div>
+          <div class="row"><label>权重·关键词</label><input id="wKeyword" type="number" min="0" step="0.5" value="2"/></div>
+          <div class="row"><label>关键词</label><input id="keyword" type="text" value="上车"/></div>
+          <div class="row"><label>Near提示%</label><input id="nearPct" type="number" min="1" max="50" value="10"/></div>
+          <div class="row">
+            <label>Reveal 类型</label>
+            <select id="revealType"><option value="code">优惠码</option><option value="link">链接</option></select>
+          </div>
+          <div class="row"><label>Reveal 值</label><input id="revealValue" type="text" value="DEAL-2025"/></div>
+          <div class="row"><label>主题</label>
+            <select id="theme"><option value="classic">经典</option><option value="neon">霓虹</option><option value="sunset">日落</option></select>
+          </div>
+          <div class="row buttons">
+            <button id="btnStart">开始冲刺</button>
+            <button id="btnReset">重置</button>
+            <button id="btnLike">+10 点赞</button>
+            <button id="btnComment">+5 评论</button>
+            <button id="btnAuto">自动刷赞（切换）</button>
+            <button id="btnSendKW">发一条关键词评论</button>
+          </div>
+          <div class="row small">提示：自动刷赞每 300ms +5 点赞；关键词仅最后10秒计分。</div>
+        </aside>
+      </main>
+
+      <footer class="footer">
+        <span>本演示使用 `tt` 模拟。上线请替换为真实能力。</span>
+      </footer>
+    </div>
+
+    <script src="tt-mock.js"></script>
+    <script src="sprint.js"></script>
+  </body>
+</html>
