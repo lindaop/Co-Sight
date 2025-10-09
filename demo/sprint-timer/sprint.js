@@ -1,5 +1,5 @@
 const defaultConfig = {
-  durationMs: 90_000,
+  durationMs: 90000,
   goalPoints: 300,
   weights: { like: 1, comment: 1.5, keyword: 2 },
   keyword: '上车',
@@ -77,7 +77,7 @@ function updateUI(state, cfg){
   document.getElementById('progressHint').textContent = near ? `还差 ${Math.ceil(need)} 分` : '';
 
   const last10El = document.getElementById('last10');
-  const isLast10 = state.timeLeft <= 10_000 && state.timeLeft > 0 && state.progress < cfg.goalPoints;
+  const isLast10 = state.timeLeft <= 10000 && state.timeLeft > 0 && state.progress < cfg.goalPoints;
   last10El.classList.toggle('on', isLast10);
   document.getElementById('kw').textContent = cfg.keyword;
   document.getElementById('kwCount').textContent = state.keywordCount;
@@ -162,7 +162,7 @@ function startSprint(cfg){
 
     // periodic calibrate (mock: use getLiveRoomLikeCount)
     const now = Date.now();
-    if (now - (state.lastCalibrateAt||0) > 45_000){
+    if (now - (state.lastCalibrateAt||0) > 45000){
       tt.getLiveRoomLikeCount().then(total => {
         state.lastCalibrateAt = now;
         state.lastLikeTotal = total;
@@ -195,7 +195,11 @@ function startSprint(cfg){
     }
   });
 
-  return () => { clearInterval(timer); likeOff?.(); commentOff?.(); };
+  return () => {
+    clearInterval(timer);
+    if (typeof likeOff === 'function') likeOff();
+    if (typeof commentOff === 'function') commentOff();
+  };
 }
 
 function bindControls(){
@@ -258,4 +262,9 @@ window.addEventListener('DOMContentLoaded', ()=>{
   document.getElementById('timeLeft').textContent = Math.ceil(defaultConfig.durationMs/1000) + 's';
   document.getElementById('metaGoal').textContent = `目标：${defaultConfig.goalPoints}分`;
   document.getElementById('metaKeyword').textContent = `关键词：${defaultConfig.keyword}`;
+  // 自动开始一轮，便于开箱即用
+  setTimeout(() => {
+    const btn = document.getElementById('btnStart');
+    if (btn) btn.click();
+  }, 0);
 });
