@@ -29,6 +29,7 @@ body {
 .progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #6ee7f9, #a78bfa); transition: width 200ms ease; }
 .progress-text { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
 .hint { font-size: 12px; color: #e0f2fe; opacity: 0.95; }
+.stats { display: grid; grid-template-columns: repeat(3, auto); gap: 12px; font-size: 12px; opacity: 0.9; margin-bottom: 8px; }
 .toast { margin: 6px 0 10px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.1); border: 1px dashed rgba(255,255,255,0.25); color: #e0f2fe; }
 
 .last10 { display: none; margin: 8px 0; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18); }

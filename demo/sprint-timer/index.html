@@ -38,9 +38,17 @@
             </div>
           </div>
 
+          <div class="stats">
+            <span id="rate">速度：0.0 分/s</span>
+            <span id="eta">预计剩余：--</span>
+            <span id="assist">加成：x1.0</span>
+          </div>
+
           <div class="toast hidden" id="preS10">
             准备上车：最后10秒评论“<b id="kw2">上车</b>”计分
           </div>
+
+          <div class="toast hidden" id="nudge"></div>
 
           <div class="last10" id="last10">
             <div>最后10秒“<b id="kw">上车</b>”计分通道已启用</div>
@@ -76,6 +84,10 @@
             <select id="revealType"><option value="code">优惠码</option><option value="link">链接</option></select>
           </div>
           <div class="row"><label>Reveal 值</label><input id="revealValue" type="text" value="DEAL-2025"/></div>
+          <div class="row"><label>目标缩放%</label><input id="scalePct" type="number" min="50" max="150" step="5" value="100"/></div>
+          <div class="row"><label>30秒加成×</label><input id="last30x" type="number" min="1" step="0.1" value="1.2"/></div>
+          <div class="row"><label>小缺口加时(秒)</label><input id="overtimeSec" type="number" min="0" step="1" value="10"/></div>
+          <div class="row"><label>加时阈值%</label><input id="overtimePct" type="number" min="1" max="20" step="1" value="5"/></div>
           <div class="row"><label>主题</label>
             <select id="theme"><option value="classic">经典</option><option value="neon">霓虹</option><option value="sunset">日落</option></select>
           </div>
@@ -86,6 +98,7 @@
             <button id="btnComment">+5 评论</button>
             <button id="btnAuto">自动刷赞（切换）</button>
             <button id="btnSendKW">发一条关键词评论</button>
+            <button id="btnExport">导出指标JSON</button>
           </div>
           <div class="row small">提示：自动刷赞每 300ms +5 点赞；关键词仅最后10秒计分。</div>
 

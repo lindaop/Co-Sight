@@ -91,6 +91,18 @@ function updateUI(state, cfg){
   if (seg !== state.lastSegment){
     state.lastSegment = seg; setActiveSegment(seg);
   }
+
+  // live rate and ETA
+  const rateEl = document.getElementById('rate');
+  const etaEl = document.getElementById('eta');
+  const dt = Math.max(1, (Date.now() - (state._lastTs || state.startedAt)) / 1000);
+  const dprog = (state.progress || 0) - (state._lastProg || 0);
+  const rate = dprog / dt;
+  rateEl.textContent = `速度：${rate.toFixed(1)} 分/s`;
+  state._lastTs = Date.now(); state._lastProg = state.progress;
+  const remain = Math.max(0, cfg.goalPoints - state.progress);
+  const etaSec = rate > 0 ? Math.ceil(remain / rate) : Infinity;
+  etaEl.textContent = `预计剩余：${etaSec === Infinity ? '--' : etaSec + 's'}`;
 }
 
 function revealSuccess(cfg){
@@ -154,21 +166,35 @@ function startSprint(cfg){
 
   let pendingDelta = 0;
   const seenUsers = new Set();
+  let assist = 1.0;
+  const assistEl = document.getElementById('assist');
   const tick = () => {
     state.timeLeft -= 200;
     if (state.timeLeft < 0) state.timeLeft = 0;
 
-    // drain pending
-    if (pendingDelta > 0){
-      state.progress += pendingDelta;
-      pendingDelta = 0;
-    }
+    // assist multiplier (last 30s boost)
+    assist = state.timeLeft <= 30000 && state.timeLeft > 0 ? Number(window.__cfg_last30x || 1.0) : 1.0;
+    assistEl.textContent = `加成：x${assist.toFixed(1)}`;
+    // drain pending with assist
+    if (pendingDelta > 0){ state.progress += pendingDelta * assist; pendingDelta = 0; }
 
     if (state.progress >= cfg.goalPoints){
       revealSuccess(cfg); finalizeMetrics(true, state, cfg); saveSnapshot(state, cfg); clearInterval(timer); return;
     }
     if (state.timeLeft <= 0){
-      showFail(cfg); finalizeMetrics(false, state, cfg); saveSnapshot(state, cfg); clearInterval(timer); return;
+      // tiny overtime window if close enough
+      const deficitPct = Math.max(0, (cfg.goalPoints - state.progress) / cfg.goalPoints) * 100;
+      const allowOver = deficitPct <= (window.__cfg_overtimePct || 0);
+      if (allowOver && !state._overtimeGranted){
+        state._overtimeGranted = true;
+        state.timeLeft += (Number(window.__cfg_overtimeSec || 0) * 1000);
+        const nudge = document.getElementById('nudge');
+        nudge.textContent = `加时 ${Number(window.__cfg_overtimeSec||0)} 秒，抓紧最后冲刺！`;
+        nudge.classList.remove('hidden');
+        setTimeout(()=> nudge.classList.add('hidden'), 2000);
+      } else {
+        showFail(cfg); finalizeMetrics(false, state, cfg); saveSnapshot(state, cfg); clearInterval(timer); return;
+      }
     }
 
     updateUI(state, cfg);
@@ -259,6 +285,10 @@ function bindControls(){
   const theme = document.getElementById('theme');
   const revealType = document.getElementById('revealType');
   const revealValue = document.getElementById('revealValue');
+  const scalePct = document.getElementById('scalePct');
+  const last30x = document.getElementById('last30x');
+  const overtimeSec = document.getElementById('overtimeSec');
+  const overtimePct = document.getElementById('overtimePct');
 
   let stop = null;
 
@@ -266,7 +296,7 @@ function bindControls(){
     if (stop) stop();
     const cfg = {
       durationMs: Math.max(10, Number(duration.value)) * 1000,
-      goalPoints: Math.max(10, Number(goal.value)),
+      goalPoints: Math.max(10, Math.round(Number(goal.value) * Math.max(0.5, Number(scalePct.value)/100))),
       weights: { like: Number(wLike.value), comment: Number(wComment.value), keyword: Number(wKeyword.value) },
       keyword: keyword.value || defaultConfig.keyword,
       nearThresholdPct: Math.max(0.01, Math.min(0.5, Number(nearPct.value)/100)),
@@ -274,6 +304,9 @@ function bindControls(){
       reveal: { type: revealType.value, value: revealValue.value },
       failFallbackText: defaultConfig.failFallbackText,
     };
+    window.__cfg_last30x = Math.max(1, Number(last30x.value) || 1);
+    window.__cfg_overtimeSec = Math.max(0, Number(overtimeSec.value) || 0);
+    window.__cfg_overtimePct = Math.max(0, Math.min(20, Number(overtimePct.value) || 0));
     localStorage.setItem(storageKey(), '');
     stop = startSprint(cfg);
   });
@@ -299,6 +332,24 @@ function bindControls(){
   document.getElementById('btnSendKW').addEventListener('click', ()=>{
     const kw = keyword.value || defaultConfig.keyword;
     tt.__mock.addComment(kw);
+  });
+  document.getElementById('btnExport').addEventListener('click', ()=>{
+    const data = {
+      run: metrics.run,
+      hist: metrics.hist,
+      config: {
+        goalPoints: Number(goal.value),
+        scalePct: Number(scalePct.value),
+        last30x: Number(last30x.value),
+        overtimeSec: Number(overtimeSec.value),
+        overtimePct: Number(overtimePct.value),
+      }
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'sprint-metrics.json'; a.click();
+    URL.revokeObjectURL(url);
   });
 }
 
