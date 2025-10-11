@@ -84,10 +84,14 @@
             <select id="revealType"><option value="code">优惠码</option><option value="link">链接</option></select>
           </div>
           <div class="row"><label>Reveal 值</label><input id="revealValue" type="text" value="DEAL-2025"/></div>
-          <div class="row"><label>目标缩放%</label><input id="scalePct" type="number" min="50" max="150" step="5" value="100"/></div>
-          <div class="row"><label>30秒加成×</label><input id="last30x" type="number" min="1" step="0.1" value="1.2"/></div>
-          <div class="row"><label>小缺口加时(秒)</label><input id="overtimeSec" type="number" min="0" step="1" value="10"/></div>
-          <div class="row"><label>加时阈值%</label><input id="overtimePct" type="number" min="1" max="20" step="1" value="5"/></div>
+          <div class="row"><label title="按百分比放大/缩小目标分值">目标缩放%</label><input id="scalePct" type="number" min="50" max="150" step="5" value="100"/></div>
+          <div class="help">例：基准300分→80%为240分、120%为360分。</div>
+          <div class="row"><label title="最后30秒对新增分数的乘数加成">30秒加成×</label><input id="last30x" type="number" min="1" step="0.1" value="1.2"/></div>
+          <div class="help">点赞/评论/关键词得分在最后30秒统一乘以该系数。</div>
+          <div class="row"><label title="到点未达成且缺口很小时，自动追加加时时长">小缺口加时(秒)</label><input id="overtimeSec" type="number" min="0" step="1" value="10"/></div>
+          <div class="help">仅触发一次；加时与阈值需同时设置才生效。</div>
+          <div class="row"><label title="判定缺口很小的百分比阈值">加时阈值%</label><input id="overtimePct" type="number" min="1" max="20" step="1" value="5"/></div>
+          <div class="help">例：5% 且目标300→缺口≤15分时触发加时。</div>
           <div class="row"><label>主题</label>
             <select id="theme"><option value="classic">经典</option><option value="neon">霓虹</option><option value="sunset">日落</option></select>
           </div>
