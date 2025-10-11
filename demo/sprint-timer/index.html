@@ -38,6 +38,10 @@
             </div>
           </div>
 
+          <div class="toast hidden" id="preS10">
+            准备上车：最后10秒评论“<b id="kw2">上车</b>”计分
+          </div>
+
           <div class="last10" id="last10">
             <div>最后10秒“<b id="kw">上车</b>”计分通道已启用</div>
             <div class="kwcount">上车计数：<span id="kwCount">0</span></div>
@@ -84,6 +88,18 @@
             <button id="btnSendKW">发一条关键词评论</button>
           </div>
           <div class="row small">提示：自动刷赞每 300ms +5 点赞；关键词仅最后10秒计分。</div>
+
+          <h3 class="metrics-title">本轮指标</h3>
+          <ul class="metrics">
+            <li>参与人数：<span id="mRunParticipants">0</span></li>
+            <li>S10关键词参与：<span id="mRunKW">0</span>（<span id="mRunKWRate">0%</span>）</li>
+            <li>Reveal点击：<span id="mRunRevealClick">0</span>，复制：<span id="mRunCopy">0</span></li>
+          </ul>
+          <h3 class="metrics-title">历史指标</h3>
+          <ul class="metrics">
+            <li>总轮数：<span id="mHistRuns">0</span>，成功率：<span id="mHistSuccessRate">0%</span></li>
+            <li>平均缺口分：<span id="mHistAvgDeficit">0</span></li>
+          </ul>
         </aside>
       </main>
 

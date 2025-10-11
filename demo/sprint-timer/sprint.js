@@ -79,7 +79,12 @@ function updateUI(state, cfg){
   const last10El = document.getElementById('last10');
   const isLast10 = state.timeLeft <= 10000 && state.timeLeft > 0 && state.progress < cfg.goalPoints;
   last10El.classList.toggle('on', isLast10);
+  // pre-10s hint within 5s window before entering last10
+  const pre = document.getElementById('preS10');
+  const preOn = state.timeLeft <= 15000 && state.timeLeft > 10000 && state.progress < cfg.goalPoints;
+  pre.classList.toggle('hidden', !preOn);
   document.getElementById('kw').textContent = cfg.keyword;
+  document.getElementById('kw2').textContent = cfg.keyword;
   document.getElementById('kwCount').textContent = state.keywordCount;
 
   const seg = computeSegment(state.timeLeft);
@@ -91,6 +96,8 @@ function updateUI(state, cfg){
 function revealSuccess(cfg){
   document.getElementById('reveal').classList.remove('hidden');
   document.getElementById('fallback').classList.add('hidden');
+  document.getElementById('preS10').classList.add('hidden');
+  document.getElementById('last10').classList.remove('on');
   const codeEl = document.getElementById('revealCode');
   const linkEl = document.getElementById('btnLink');
   const copyBtn = document.getElementById('btnCopy');
@@ -107,7 +114,10 @@ function revealSuccess(cfg){
   }
   copyBtn.onclick = async () => {
     try { await navigator.clipboard.writeText(cfg.reveal.value); copyBtn.textContent = '已复制'; setTimeout(()=> copyBtn.textContent='复制', 1200); } catch {}
+    metrics.run.copy++;
+    renderMetrics();
   };
+  document.getElementById('btnLink').onclick = () => { metrics.run.revealClick++; renderMetrics(); };
 }
 
 function showFail(cfg){
@@ -115,6 +125,8 @@ function showFail(cfg){
   const fb = document.getElementById('fallback');
   fb.classList.remove('hidden');
   document.getElementById('fallbackText').textContent = cfg.failFallbackText || '';
+  document.getElementById('preS10').classList.add('hidden');
+  document.getElementById('last10').classList.remove('on');
 }
 
 function startSprint(cfg){
@@ -141,6 +153,7 @@ function startSprint(cfg){
   updateUI(state, cfg); saveSnapshot(state, cfg);
 
   let pendingDelta = 0;
+  const seenUsers = new Set();
   const tick = () => {
     state.timeLeft -= 200;
     if (state.timeLeft < 0) state.timeLeft = 0;
@@ -152,10 +165,10 @@ function startSprint(cfg){
     }
 
     if (state.progress >= cfg.goalPoints){
-      revealSuccess(cfg); saveSnapshot(state, cfg); clearInterval(timer); return;
+      revealSuccess(cfg); finalizeMetrics(true, state, cfg); saveSnapshot(state, cfg); clearInterval(timer); return;
     }
     if (state.timeLeft <= 0){
-      showFail(cfg); saveSnapshot(state, cfg); clearInterval(timer); return;
+      showFail(cfg); finalizeMetrics(false, state, cfg); saveSnapshot(state, cfg); clearInterval(timer); return;
     }
 
     updateUI(state, cfg);
@@ -185,14 +198,17 @@ function startSprint(cfg){
     const last = state.lastCommentByUserAt[userId] || 0;
     if (now - last < 5000) return; // 去水化 5s
     state.lastCommentByUserAt[userId] = now;
+    if (!seenUsers.has(userId)) { seenUsers.add(userId); metrics.run.participants = seenUsers.size; renderMetrics(); }
 
     const inLast10 = state.timeLeft <= 10_000 && state.timeLeft > 0 && state.progress < cfg.goalPoints;
     if (inLast10 && text && text.toLowerCase().includes((cfg.keyword||'').toLowerCase())){
       pendingDelta += (cfg.weights.keyword || 0);
       state.keywordCount += 1;
+      metrics.run.kw++;
     } else {
       pendingDelta += (cfg.weights.comment || 0);
     }
+    renderMetrics();
   });
 
   return () => {
@@ -200,6 +216,36 @@ function startSprint(cfg){
     if (typeof likeOff === 'function') likeOff();
     if (typeof commentOff === 'function') commentOff();
   };
+}
+const metrics = {
+  run: { participants: 0, kw: 0, revealClick: 0, copy: 0 },
+  hist: { runs: 0, success: 0, totalDeficit: 0 }
+};
+
+function renderMetrics(){
+  const r = metrics.run; const h = metrics.hist;
+  document.getElementById('mRunParticipants').textContent = r.participants;
+  document.getElementById('mRunKW').textContent = r.kw;
+  const rate = r.participants ? Math.round((r.kw / r.participants) * 100) : 0;
+  document.getElementById('mRunKWRate').textContent = rate + '%';
+  document.getElementById('mRunRevealClick').textContent = r.revealClick;
+  document.getElementById('mRunCopy').textContent = r.copy;
+
+  document.getElementById('mHistRuns').textContent = h.runs;
+  const sr = h.runs ? Math.round((h.success / h.runs) * 100) : 0;
+  document.getElementById('mHistSuccessRate').textContent = sr + '%';
+  const avgDef = h.runs ? Math.round(h.totalDeficit / h.runs) : 0;
+  document.getElementById('mHistAvgDeficit').textContent = avgDef;
+}
+
+function finalizeMetrics(success, state, cfg){
+  metrics.hist.runs += 1;
+  if (success) metrics.hist.success += 1;
+  const deficit = Math.max(0, cfg.goalPoints - state.progress);
+  metrics.hist.totalDeficit += deficit;
+  renderMetrics();
+  // reset per-run counters for next round, but keep history
+  metrics.run = { participants: 0, kw: 0, revealClick: metrics.run.revealClick, copy: metrics.run.copy };
 }
 
 function bindControls(){
@@ -267,4 +313,5 @@ window.addEventListener('DOMContentLoaded', ()=>{
     const btn = document.getElementById('btnStart');
     if (btn) btn.click();
   }, 0);
+  renderMetrics();
 });
